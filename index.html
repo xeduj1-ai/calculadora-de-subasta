@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Margen - Subasta a Binance</title>
+    <style>
+        :root {
+            --bg: #0b0e11;
+            --card: #1e2329;
+            --yellow: #fcd535;
+            --text: #eaecef;
+            --green: #0ecb81;
+            --red: #f6465d;
+            --input-bg: #2b3139;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: var(--card);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            width: 90%;
+            max-width: 420px;
+        }
+
+        h2 { text-align: center; color: var(--yellow); margin-bottom: 20px; font-size: 1.4rem; }
+        
+        .section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--yellow);
+            margin-bottom: 15px;
+            border-bottom: 1px solid #474d57;
+            padding-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .input-group { margin-bottom: 15px; }
+
+        label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: #848e9c; }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #474d57;
+            background-color: var(--input-bg);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        input:focus { border-color: var(--yellow); }
+
+        .results {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .value { font-weight: bold; }
+        .profit { color: var(--green); }
+        .loss { color: var(--red); }
+
+        .highlight-box {
+            background: var(--input-bg);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            border: 1px dashed #474d57;
+        }
+
+        .info-text { font-size: 0.75rem; color: #848e9c; margin-top: 4px; }
+        .total-gastado { font-size: 0.9rem; color: var(--yellow); text-align: right; margin-top: -10px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📊 calculadora luis sojo</h2>
+
+    <div class="section-title">Paso 1: La Subasta</div>
+    <div class="input-group">
+        <label>¿Cuántos $ compraste en subasta?</label>
+        <input type="number" id="montoSubasta" placeholder="Ej: 2000k" oninput="calcular()">
+    </div>
+    <div class="input-group">
+        <label>¿A qué precio compraste cada $? (Tasa)</label>
+        <input type="number" id="tasaSubasta" placeholder="Ej: 357" oninput="calcular()">
+    </div>
+    <div id="totalInvertidoTexto" class="total-gastado">Total invertido: 0 Bs</div>
+
+    <div class="section-title">Paso 2: Binance</div>
+    <div class="input-group">
+        <label>¿Cuántos USDT te llegaron netos?</label>
+        <input type="number" id="usdtNetos" placeholder="Ej: 500" oninput="calcular()">
+    </div>
+    <div class="input-group">
+        <label>Precio de Venta hoy (Bs/USDT):</label>
+        <input type="number" id="precioVenta" placeholder="Ej: 510" oninput="calcular()">
+    </div>
+
+    <div class="results">
+        <div class="result-item">
+            <span>Ganancia Total:</span>
+            <span id="gananciaBs" class="value">0.00 Bs</span>
+        </div>
+        <div class="result-item">
+            <span>Ganancia en USDT:</span>
+            <span id="gananciaUsdt" class="value">0.00 USDT</span>
+        </div>
+        
+        <div class="highlight-box">
+            <div style="font-size: 0.8rem; color: #848e9c;">Punto de Equilibrio:</div>
+            <div id="breakeven" style="font-weight: bold; color: var(--yellow); font-size: 1.2rem;">0.00 Bs</div>
+            <div class="info-text">Precio mínimo de venta para no perder.</div>
+        </div>
+
+        <div class="info-text" style="text-align: center; margin-top: 10px; font-style: italic;">
+            Comisión de envío: <span id="perdidaComision">0.00</span> $
+        </div>
+    </div>
+</div>
+
+<script>
+    function calcular() {
+        const montoSubasta = parseFloat(document.getElementById('montoSubasta').value) || 0;
+        const tasaSubasta = parseFloat(document.getElementById('tasaSubasta').value) || 0;
+        const usdtNetos = parseFloat(document.getElementById('usdtNetos').value) || 0;
+        const tasaVenta = parseFloat(document.getElementById('precioVenta').value) || 0;
+
+        // Cálculo de inversión total automática
+        const bsInvertidos = montoSubasta * tasaSubasta;
+        document.getElementById('totalInvertidoTexto').innerText = "Total invertido: " + bsInvertidos.toLocaleString('es-VE') + " Bs";
+
+        // Valor actual si vendieras en Binance
+        const valorActualBs = usdtNetos * tasaVenta;
+        const gananciaBs = valorActualBs - bsInvertidos;
+        
+        // Ganancia comparada con haber comprado en P2P directamente
+        const compraDirectaUsdt = tasaVenta > 0 ? bsInvertidos / tasaVenta : 0;
+        const gananciaRealUsdt = usdtNetos - compraDirectaUsdt;
+
+        // Comisiones perdidas
+        const comisionDolares = montoSubasta - usdtNetos;
+
+        // Punto de equilibrio
+        const breakeven = usdtNetos > 0 ? bsInvertidos / usdtNetos : 0;
+
+        // Mostrar resultados
+        const resBs = document.getElementById('gananciaBs');
+        const resUsdt = document.getElementById('gananciaUsdt');
+
+        resBs.innerText = (gananciaBs).toLocaleString('es-VE', {minimumFractionDigits: 2}) + " Bs";
+        resUsdt.innerText = (gananciaRealUsdt).toFixed(2) + " USDT";
+        document.getElementById('breakeven').innerText = (breakeven).toLocaleString('es-VE', {minimumFractionDigits: 2}) + " Bs";
+        document.getElementById('perdidaComision').innerText = (montoSubasta > 0 && usdtNetos > 0) ? comisionDolares.toFixed(2) : "0.00";
+
+        // Colores
+        if (gananciaBs >= 0) {
+            resBs.className = 'value profit';
+            resUsdt.className = 'value profit';
+        } else {
+            resBs.className = 'value loss';
+            resUsdt.className = 'value loss';
+        }
+    }
+</script>
+
+</body>
+</html>
